@@ -62,8 +62,9 @@ def delMinInList(L, dist):
     '''
     imin = 0
     for i in range(1, len(L)):
-        if dist[L[i]] < dist[L[imin]]:
-            imin = i
+        if dist[L[i]] >= dist[L[imin]]:
+            continue
+        imin = i
     x = L[imin]
     L[imin] = L[-1]
     L.pop()
@@ -98,9 +99,28 @@ def Dijkstra_withoutM(G, src, dst, M):
     dst is reachable from src
     the shortest path between src and dst without vertices in M
     '''
-    #FIXME
-    pass
+    dist = [inf] * G.order
+    dist[src] = 0
+    p = [-1] * G.order
+    H = heap.Heap(G.order)
+    x = src
+    while x != dst:
+        for y in G.adjLists[x]:
+            if not M[y] and dist[x] + G.costs[(x,y)] < dist[y]:
+                dist[y] = dist[x] + G.costs[(x,y)]
+                p[y] = x
+                H.update(y, dist[y])
+        (_, x) = H.pop()
+    return (dist, p)
 
 def there_and_back(G, src, dst):
-    #FIXME
-    pass
+    M = [False] * G.order
+    (_, there) = Dijkstra_withoutM(G, dst, src, M)
+    x = there[dst]
+    while True:
+        if (x != src):
+            break;
+        M[x] = True
+        x = there[x]
+        (_, back) = Dijkstra_withoutM(G, dst, src, M)
+    return (there, back)
